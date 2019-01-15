@@ -15,6 +15,7 @@ networks:
     external: true
   dev-backend:
     external: true
+  db:
 
 services:
 
@@ -69,6 +70,7 @@ services:
       - PHP_CONF_TIMEZONE=${TIMEZONE}
     networks:
       - dev-backend
+      - db
     volumes:
       - ${LOCAL_PATH_PROJECTS}:/var/www/projects:rw
       - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
@@ -97,6 +99,7 @@ services:
       - PHP_CONF_TIMEZONE=${TIMEZONE}
     networks:
       - dev-backend
+      - db
     volumes:
       - ${LOCAL_PATH_PROJECTS}:/var/www/projects:rw
       - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
@@ -122,7 +125,7 @@ services:
       - mysql
     networks:
       - dev-frontend
-      - dev-backend
+      - db
     volumes:
       - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
 
@@ -141,7 +144,7 @@ services:
       - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
     networks:
-      dev-backend:
+      - db
     volumes:
       - ./docker/mysql/conf:/etc/mysql/conf.d
       - ${LOCAL_PATH_MYSQL:-./data/mysql}:/var/lib/mysql:rw
