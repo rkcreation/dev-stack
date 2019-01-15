@@ -1,0 +1,148 @@
+#############################################################################
+# A new default web stack - using docker
+# 
+# Based on https://github.com/dwurf/default-web-stack
+# and on the ideas in Simon Willison's talk:
+# https://www.youtube.com/watch?v=P68zXJ_ACCE
+# 
+# Usage (for development):
+#    open https://localhost/
+#############################################################################
+version: '3'
+
+networks:
+  dev-frontend:
+    external: true
+  dev-backend:
+    external: true
+
+services:
+
+  #############################################################################
+  # apache service with php7 & php5 with fpm
+  # 
+  # This is the backend for the stack, behind a proxy
+  #############################################################################
+
+  web:
+    image: rkcreation/apache-fpm:1.0.0
+    restart: always
+    environment:
+      - RUN_UID=${RUN_UID:-8181}
+      - RUN_GID=${RUN_GID:-8181}
+      - APPLICATION_ENV=${APPLICATION_ENV}
+      - VIRTUAL_HOST_SUFFIX=${SUFFIX}
+      - VIRTUAL_HOST=${PROJECTS_PREFIX}${SUFFIX}
+      - TIMEZONE=${TIMEZONE}
+      - PHP_FPM_PATH=${PROJECTS_PATH}
+    volumes:
+      - ${LOCAL_PATH_PROJECTS}:/usr/local/apache2/htdocs:rw
+      - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
+      - ./docker/web/conf/vhost-virtual.conf:/usr/local/apache2/conf/vhost.conf:rw
+    networks:
+      - dev-frontend
+      - dev-backend
+    depends_on:
+      - php
+      - php5
+
+  php:
+    image: rkcreation/php7-fpm:latest
+    restart: always
+    env_file:
+      - ./.env
+      - ./.env-php
+    user: root
+    command: "php-fpm -R"
+    environment:
+      - RUN_UID=${RUN_UID:-8181}
+      - RUN_GID=${RUN_GID:-8181}
+      - APPLICATION_ENV=${APPLICATION_ENV:-dev}
+      - DB_USER=root
+      - DB_PASS=${DB_ROOT_PASSWORD}
+      - DB_NAME=${DB_DATABASE}
+      - DB_HOST=mysql
+      - MAIN_HOST=${SUFFIX}
+      - PMA_HOST=${PMA_PREFIX}.tools.local
+      - MAILS_HOST=mails.tools.local
+      - PORTAINER_HOST=portainer.tools.local
+      - PHP_CONF_TIMEZONE=${TIMEZONE}
+    networks:
+      - dev-backend
+    volumes:
+      - ${LOCAL_PATH_PROJECTS}:/var/www/projects:rw
+      - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
+      - ~/.ssh:/var/www/.ssh:rw
+
+  php5:
+    image: rkcreation/php5-fpm:latest
+    restart: always
+    env_file:
+      - ./.env
+      - ./.env-php
+    user: root
+    command: "php-fpm -R"
+    environment:
+      - RUN_UID=${RUN_UID:-8181}
+      - RUN_GID=${RUN_GID:-8181}
+      - APPLICATION_ENV=${APPLICATION_ENV:-dev}
+      - DB_USER=root
+      - DB_PASS=${DB_ROOT_PASSWORD}
+      - DB_NAME=${DB_DATABASE}
+      - DB_HOST=mysql
+      - MAIN_HOST=${SUFFIX}
+      - PMA_HOST=${PMA_PREFIX}.tools.local
+      - MAILS_HOST=mails.tools.local
+      - PORTAINER_HOST=portainer.tools.local
+      - PHP_CONF_TIMEZONE=${TIMEZONE}
+    networks:
+      - dev-backend
+    volumes:
+      - ${LOCAL_PATH_PROJECTS}:/var/www/projects:rw
+      - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
+      - ~/.ssh:/var/www/.ssh:rw
+
+
+  #############################################################################
+  # phpMyAdmin service
+  #############################################################################
+  phpmyadmin:
+    image: rkcreation/phpmyadmin:latest
+    restart: always
+    environment:
+      - TIMEZONE=${TIMEZONE}
+      - VIRTUAL_HOST=${PMA_PREFIX}.tools.local
+      - STACK_NAME=${SUFFIX}
+      - APPLICATION_ENV=${APPLICATION_ENV}
+      - UPLOAD_PATH=/backups
+      - CUSTOM_THEME=fallen
+      - CUSTOM_THEME_VERSION=0.7
+      - PMA_HOSTS=mysql
+    depends_on:
+      - mysql
+    networks:
+      - dev-frontend
+      - dev-backend
+    volumes:
+      - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
+
+
+  #############################################################################
+  # MySQL server
+  #############################################################################
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - TIMEZONE=${TIMEZONE}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=false
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    networks:
+      dev-backend:
+    volumes:
+      - ./docker/mysql/conf:/etc/mysql/conf.d
+      - ${LOCAL_PATH_MYSQL:-./data/mysql}:/var/lib/mysql:rw
+      - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
