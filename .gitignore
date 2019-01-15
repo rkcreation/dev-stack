@@ -1,4 +1,6 @@
 .env*
 !.env*.dist
-data
+data/*
+!.gitkeep
+!data/.gitkeep
 !data/**/.gitkeep
