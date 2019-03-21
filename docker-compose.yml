@@ -64,7 +64,7 @@ services:
       - DB_NAME=${DB_DATABASE}
       - DB_HOST=mysql
       - MAIN_HOST=${SUFFIX}
-      - PMA_HOST=${PMA_PREFIX}.tools.local
+      - PMA_HOST=${PMA_PREFIX}.${SUFFIX}.tools.local
       - MAILS_HOST=mails.tools.local
       - PORTAINER_HOST=portainer.tools.local
       - PHP_CONF_TIMEZONE=${TIMEZONE}
@@ -93,7 +93,7 @@ services:
       - DB_NAME=${DB_DATABASE}
       - DB_HOST=mysql
       - MAIN_HOST=${SUFFIX}
-      - PMA_HOST=${PMA_PREFIX}.tools.local
+      - PMA_HOST=${PMA_PREFIX}.${SUFFIX}.tools.local
       - MAILS_HOST=mails.tools.local
       - PORTAINER_HOST=portainer.tools.local
       - PHP_CONF_TIMEZONE=${TIMEZONE}
@@ -114,7 +114,7 @@ services:
     restart: always
     environment:
       - TIMEZONE=${TIMEZONE}
-      - VIRTUAL_HOST=${PMA_PREFIX}.tools.local
+      - VIRTUAL_HOST=${PMA_PREFIX}.${SUFFIX}.tools.local
       - STACK_NAME=${SUFFIX}
       - APPLICATION_ENV=${APPLICATION_ENV}
       - UPLOAD_PATH=/backups
