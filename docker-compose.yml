@@ -54,7 +54,7 @@ services:
       - ./.env
       - ./.env-php
     user: root
-    command: "php-fpm -R"
+    # command: "php-fpm -R"
     environment:
       - RUN_UID=${RUN_UID:-8181}
       - RUN_GID=${RUN_GID:-8181}
