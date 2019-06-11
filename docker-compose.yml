@@ -26,7 +26,7 @@ services:
   #############################################################################
 
   web:
-    image: rkcreation/apache-fpm:1.0.0
+    image: rkcreation/apache-fpm:1.1.0
     restart: always
     environment:
       - RUN_UID=${RUN_UID:-8181}
@@ -37,7 +37,7 @@ services:
       - TIMEZONE=${TIMEZONE}
       - PHP_FPM_PATH=${PROJECTS_PATH}
     volumes:
-      - ${LOCAL_PATH_PROJECTS}:/usr/local/apache2/htdocs:rw
+      - ${LOCAL_PATH_PROJECTS}:/var/www:rw
       - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
       - ./docker/web/conf/vhost-virtual.conf:/usr/local/apache2/conf/vhost.conf:rw
     networks:
@@ -72,7 +72,7 @@ services:
       - dev-backend
       - db
     volumes:
-      - ${LOCAL_PATH_PROJECTS}:/var/www/projects:rw
+      - ${LOCAL_PATH_PROJECTS}:/var/www:rw
       - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
       - ~/.ssh:/var/www/.ssh:rw
 
@@ -101,7 +101,7 @@ services:
       - dev-backend
       - db
     volumes:
-      - ${LOCAL_PATH_PROJECTS}:/var/www/projects:rw
+      - ${LOCAL_PATH_PROJECTS}:/var/www:rw
       - ${LOCAL_PATH_BACKUPS:-./data/backups}:/backups:rw
       - ~/.ssh:/var/www/.ssh:rw
 
