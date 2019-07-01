@@ -26,7 +26,7 @@ services:
   #############################################################################
 
   web:
-    image: rkcreation/apache-fpm:1.1.1
+    image: rkcreation/apache-fpm:1.1.2
     restart: always
     environment:
       - RUN_UID=${RUN_UID:-8181}
@@ -53,7 +53,7 @@ services:
     env_file:
       - ./.env
       - ./.env-php
-    user: root
+    # user: root
     # command: "php-fpm -R"
     environment:
       - RUN_UID=${RUN_UID:-8181}
@@ -82,7 +82,7 @@ services:
     env_file:
       - ./.env
       - ./.env-php
-    user: root
+    # user: root
     # command: "php-fpm -R"
     environment:
       - RUN_UID=${RUN_UID:-8181}
